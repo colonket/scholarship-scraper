@@ -2,29 +2,74 @@
 import requests
 from bs4 import BeautifulSoup
 import json
+import os
 
-#url = 'https://www.scholarships.com/financial-aid/college-scholarships/scholarship-directory'
-url = 'https://www.scholarships.com/financial-aid/college-scholarships/scholarship-directory/academic-major/cybersecurity'
+base_url = 'https://www.scholarships.com'
+directory_url = "https://www.scholarships.com/financial-aid/college-scholarships/scholarship-directory"
 
-page = requests.get(url)
+#Crawl the website
+targets = [base_url]
+scraped = []
 
-soup = BeautifulSoup(page.text, "html.parser")
+def findTargets(url):
+    global targets
+    page = requests.get(url)
+    rawhtml = BeautifulSoup(page.text, "lxml")
+    for ul in rawhtml.find_all('ul'):
+         for li in ul.find_all('li'):
+            try:
+                timesUnknown = 0
+                a = li.find('a')
+                link = base_url+a['href']
+                for hit in targets:
+                    if( link != hit):
+                        timesUnknown += 1
+                    if timesUnknown == len(targets):
+                        targets.append(link)
+            except TypeError as e:
+                     pass
+    scraped.append(url)
+    print(url+" scraped!")
 
-title_list = soup.find("table")
-
-title_list_items = title_list.find_all(class_='scholtitle')
-
-'''
-<tr>
-<td class="scholtitle"><a href="/financial-aid/college-scholarships/scholarship-directory/acad
-emic-major/cybersecurity/isc²-undergraduate-cybersecurity-scholarship">(ISC)² Undergraduate Cy
-bersecurity Scholarship</a></td>
-<td class="scholamt">$5,000 </td>
-<td class="scholdd">03/01/2020</td>
-'''
-
-for title in title_list_items:
-   names = title.contents[0]
-   print(names)
+    targets = [i for i in targets if i.startswith(directory_url)]
+    
+    targets = list(dict.fromkeys(targets))
 
 
+
+def scrapeInfo(url):
+    sList = ['bluh']
+    page = requests.get(url)
+    rawhtml = BeautifulSoup(page.text, "lxml")
+
+    #Get list of Scholarship Titles (scholtitle)
+    titles = []
+    for ele in rawhtml.select('td.scholtitle'):
+        titles.append(ele.text)
+    #Get list of Scholarship Amounts (scholamt)
+    amounts = []
+    for ele in rawhtml.select('td.scholamt'):
+        amounts.append(ele.text)
+    #Get list of Scholarship Due Dates (scholdd)
+    duedates = []
+    for ele in rawhtml.select('td.scholdd'):
+        duedates.append(ele.text)
+
+    #Print list of scholarship information as long as information is consistent
+    consistent = (len(titles) == len(amounts)) and (len(amounts)==len(duedates)) 
+    if( consistent ):
+        for i in range(len(titles)):
+            schol = "{} - {} - {}".format(titles[i],amounts[i],duedates[i])
+            for item in sList:
+                already = False
+                if(item == schol):
+                    already = True
+                if already == False:
+                    sList.append(schol)
+    else:
+        print("Error Encountered: Inconsistent quantity of scholarship titles, amounts, and due dates.")
+
+
+findTargets(directory_url)
+for url in targets:
+    scrapeInfo(url)
