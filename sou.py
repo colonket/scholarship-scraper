@@ -1,46 +1,44 @@
 #!/usr/bin/env python3
 import requests
 from bs4 import BeautifulSoup
-import json
+import csv
 import os
+
+'''
+<table class = "scholarshiplistdirectory">
+<ul id="ullist">
+'''
 
 base_url = 'https://www.scholarships.com'
 directory_url = "https://www.scholarships.com/financial-aid/college-scholarships/scholarship-directory"
 
 #Crawl the website
 targets = [base_url]
-scraped = []
+seen_targets = set(targets)
+scholarships = []
 
-def findTargets(url):
+def findTargets(url): #Pulls url's from a page that may contain scholarships
     global targets
+    global seen_targets
     page = requests.get(url)
     rawhtml = BeautifulSoup(page.text, "lxml")
-    for ul in rawhtml.find_all('ul'):
-         print("Found a ul!")
-         for li in ul.find_all('li'):
+    for ul in rawhtml.find_all('ul', id="ullist"): #ul contains li's
+         for li in ul.find_all('li'): #li links to schol list
             try:
-                timesUnknown = 0
                 a = li.find('a')
-                link = base_url+a['href']
-                for hit in targets:
-                    if( link != hit):
-                        timesUnknown += 1
-                    if timesUnknown == len(targets):
-                        targets.append(link)
+                link = base_url+a['href'] #https://base.url/given-by-href
+                if link not in seen_targets:
+                    seen_targets.add(link)
+                    targets.append(link)
+                    findTargets(link)
             except TypeError as e:
                      pass
-    scraped.append(url)
-    print(url+" crawled!")
-
-    targets = [i for i in targets if i.startswith(directory_url)]
     
-    #targets = list(dict.fromkeys(targets))
+    targets = [i for i in targets if i.startswith(directory_url)]
 
 
 
-def scrapeInfo(url):
-    print("Scraping from {}".format(url))
-    sList = ['bluh']
+def scrapeSchol(url):
     page = requests.get(url)
     rawhtml = BeautifulSoup(page.text, "lxml")
 
@@ -56,25 +54,35 @@ def scrapeInfo(url):
     duedates = []
     for ele in rawhtml.select('td.scholdd'):
         duedates.append(ele.text)
+    #Get list of Scholarship Links
+    slinks = []
+    for ele in rawhtml.select('td.scholtitle.a[href]'):
+        slinks.append(ele.text)
 
     #Print list of scholarship information as long as information is consistent
     consistent = (len(titles) == len(amounts)) and (len(amounts)==len(duedates)) 
+    quantity = len(titles)
     if( consistent ):
-        for i in range(len(titles)):
-            schol = "{} - {} - {}".format(titles[i],amounts[i],duedates[i])
-            print(schol)
-            '''
-            for item in sList:
-                already = False
-                if(item == schol):
-                    already = True
-                if already == False:
-                    sList.append(schol)
-            '''
+        with open('names.csv', 'w') as csvfile:
+            fieldnames = ['title', 'amount', 'due date', 'link']
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for i in range(quantity):
+                schol = "{} - {} - {}".format(titles[i],amounts[i],duedates[i])
+                writer.writerow({'title': titles[i],'amount': amounts[i],'due date': duedates[i],'link': slinks[i]})
+                seen_scholarships = set(scholarships)
+                if schol not in seen_scholarships:
+                    seen_scholarships.add(schol)
+                    scholarships.append(schol)
+
     else:
         print("Error Encountered: Inconsistent quantity of scholarship titles, amounts, and due dates.")
 
 
 findTargets(directory_url)
 for url in targets:
-    scrapeInfo(url)
+    scrapeSchol(url)
+'''
+for scholarship in scholarships:
+    print(scholarship)
+'''
