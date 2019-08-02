@@ -39,44 +39,44 @@ def findTargets(url): #Pulls url's from a page that may contain scholarships
 
 
 def scrapeSchol(url):
-    page = requests.get(url)
-    rawhtml = BeautifulSoup(page.text, "lxml")
+    with open('names.csv', 'w') as csvfile:
+        page = requests.get(url)
+        rawhtml = BeautifulSoup(page.text, "lxml")
 
-    #Get list of Scholarship Titles (scholtitle)
-    titles = []
-    for ele in rawhtml.select('td.scholtitle'):
-        titles.append(ele.text)
-    #Get list of Scholarship Amounts (scholamt)
-    amounts = []
-    for ele in rawhtml.select('td.scholamt'):
-        amounts.append(ele.text)
-    #Get list of Scholarship Due Dates (scholdd)
-    duedates = []
-    for ele in rawhtml.select('td.scholdd'):
-        duedates.append(ele.text)
-    #Get list of Scholarship Links
-    slinks = []
-    for ele in rawhtml.select('td.scholtitle.a[href]'):
-        slinks.append(ele.text)
+        #Get list of Scholarship Titles (scholtitle)
+        titles = []
+        for ele in rawhtml.select('td.scholtitle'):
+            titles.append(ele.text)
+        #Get list of Scholarship Amounts (scholamt)
+        amounts = []
+        for ele in rawhtml.select('td.scholamt'):
+            amounts.append(ele.text)
+        #Get list of Scholarship Due Dates (scholdd)
+        duedates = []
+        for ele in rawhtml.select('td.scholdd'):
+            duedates.append(ele.text)
+        #Get list of Scholarship Links
+        slinks = []
+        for ele in rawhtml.select('td.scholtitle.a[href]'):
+            slinks.append(ele.text)
 
-    #Print list of scholarship information as long as information is consistent
-    consistent = (len(titles) == len(amounts)) and (len(amounts)==len(duedates)) 
-    quantity = len(titles)
-    if( consistent ):
-        with open('names.csv', 'w') as csvfile:
-            fieldnames = ['title', 'amount', 'due date', 'link']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            writer.writeheader()
-            for i in range(quantity):
-                schol = "{} - {} - {}".format(titles[i],amounts[i],duedates[i])
-                writer.writerow({'title': titles[i],'amount': amounts[i],'due date': duedates[i],'link': slinks[i]})
-                seen_scholarships = set(scholarships)
-                if schol not in seen_scholarships:
-                    seen_scholarships.add(schol)
-                    scholarships.append(schol)
+        #Print list of scholarship information as long as information is consistent
+        consistent = (len(titles) == len(amounts)) and (len(amounts)==len(duedates)) 
+        quantity = len(titles)
+        if( consistent ):
+                fieldnames = ['title', 'amount', 'due date', 'link']
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                for i in range(quantity):
+                    schol = "{} - {} - {} - {}".format(titles[i],amounts[i],duedates[i],slinks[i])
+                    writer.writerow({'title': titles[i],'amount': amounts[i],'due date': duedates[i],'link': slinks[i]})
+                    seen_scholarships = set(scholarships)
+                    if schol not in seen_scholarships:
+                        seen_scholarships.add(schol)
+                        scholarships.append(schol)
 
-    else:
-        print("Error Encountered: Inconsistent quantity of scholarship titles, amounts, and due dates.")
+        else:
+            print("Error Encountered: Inconsistent quantity of scholarship titles, amounts, and due dates.")
 
 
 findTargets(directory_url)
