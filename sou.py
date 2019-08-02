@@ -16,6 +16,7 @@ def findTargets(url):
     page = requests.get(url)
     rawhtml = BeautifulSoup(page.text, "lxml")
     for ul in rawhtml.find_all('ul'):
+         print("Found a ul!")
          for li in ul.find_all('li'):
             try:
                 timesUnknown = 0
@@ -29,15 +30,16 @@ def findTargets(url):
             except TypeError as e:
                      pass
     scraped.append(url)
-    print(url+" scraped!")
+    print(url+" crawled!")
 
     targets = [i for i in targets if i.startswith(directory_url)]
     
-    targets = list(dict.fromkeys(targets))
+    #targets = list(dict.fromkeys(targets))
 
 
 
 def scrapeInfo(url):
+    print("Scraping from {}".format(url))
     sList = ['bluh']
     page = requests.get(url)
     rawhtml = BeautifulSoup(page.text, "lxml")
@@ -60,12 +62,15 @@ def scrapeInfo(url):
     if( consistent ):
         for i in range(len(titles)):
             schol = "{} - {} - {}".format(titles[i],amounts[i],duedates[i])
+            print(schol)
+            '''
             for item in sList:
                 already = False
                 if(item == schol):
                     already = True
                 if already == False:
                     sList.append(schol)
+            '''
     else:
         print("Error Encountered: Inconsistent quantity of scholarship titles, amounts, and due dates.")
 
