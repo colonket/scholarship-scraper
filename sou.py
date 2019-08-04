@@ -60,7 +60,9 @@ for ele in rawhtml.select('td.scholdd'):
 slinks = []
 for data in rawhtml.find_all('table'):
     for a in data.find_all('a'):
-        slinks.append(base_url+a.get('href'))
+        link = base_url+a.get('href')
+        if("electrical-engineering/" in link):
+            slinks.append(link)
 
 #Print list of scholarship information as long as information is consistent
 consistent = (len(titles) == len(amounts)) and (len(amounts)==len(duedates)) 
@@ -68,11 +70,11 @@ quantity = len(titles)
 def scrapeSchol(url):
     if( consistent ):
         fieldnames = ['title', 'amount', 'due date', 'link']
-        for i in range(quantity):
-            schol = "{} - {} - {} - {}".format(titles[i],amounts[i],duedates[i],slinks[i])
-            with open('names.csv', 'w') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
+        with open('names.csv', 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            for i in range(quantity):
+                schol = "{} - {} - {} - {}".format(titles[i],amounts[i],duedates[i],slinks[i])
                 writer.writerow({'title': titles[i],'amount': amounts[i],'due date': duedates[i],'link': slinks[i]})
                 seen_scholarships = set(scholarships)
                 if schol not in seen_scholarships:
