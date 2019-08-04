@@ -1,2 +1,3 @@
 # scholarship-scraper
-Web Scraper to filter through many, many scholarships
+Web Crawler/Scraper to create csv's of scholarships.
+Currently scrapes off of Scholarships.com's Electrical Engineering page.
