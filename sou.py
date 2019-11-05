@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+
+#Written by colonEndBracket :]
+#Requires BeautifulSoup and lxml! (python3 -m pip install requirements.txt)
+
 import requests
 from bs4 import BeautifulSoup
 import csv
@@ -38,11 +42,8 @@ def findTargets(url): #Pulls url's from a page that may contain scholarships
     
     targets = [i for i in targets if i.startswith(directory_url)]
 
-
-
-
 page = requests.get(directory_url)
-rawhtml = BeautifulSoup(page.text, "lxml")
+rawhtml = BeautifulSoup(page.text,"lxml")
 
 #Get list of Scholarship Titles (scholtitle)
 titles = []
@@ -84,12 +85,9 @@ def scrapeSchol(url):
         print("Error Encountered: Inconsistent quantity of scholarship titles, amounts, and due dates.")
 
     
-'''
+
 findTargets(directory_url)
 for url in targets:
     scrapeSchol(url)
-'''
-'''
 for scholarship in scholarships:
     print(scholarship)
-'''
