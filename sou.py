@@ -2,6 +2,7 @@
 
 #Written by colonEndBracket :]
 #Requires BeautifulSoup and lxml! (python3 -m pip install requirements.txt)
+#Last updated: 04-November-2019
 
 import requests
 from bs4 import BeautifulSoup
