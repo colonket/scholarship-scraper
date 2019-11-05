@@ -6,7 +6,7 @@
 import requests
 from bs4 import BeautifulSoup
 import csv
-import os
+#import os
 import datetime
 
 '''
