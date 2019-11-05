@@ -22,11 +22,18 @@ targets = [base_url]
 seen_targets = set(targets)
 scholarships = []
 
-def findTargets(url): #Pulls url's from a page that may contain scholarships
+#Pulls url's from a page that may contain scholarships and stores them in list "targets"
+def findTargets(url): 
     global targets
     global seen_targets
     page = requests.get(url)
     rawhtml = BeautifulSoup(page.text, "lxml")
+    #Scholarships.com stores links to their scholarships in a table of class="scholarshiplistdirectory"
+    for scholdir in rawhtml.find_all('table', attrs={'class:','scholarshiplistdirectory'}):
+        link = scholdir.find_all("a")
+        targets.append(link)
+
+    """
     for ul in rawhtml.find_all('ul', id="ullist"): #ul contains li's
          for li in ul.find_all('li'): #li links to schol list
             try:
@@ -39,9 +46,9 @@ def findTargets(url): #Pulls url's from a page that may contain scholarships
                     findTargets(link)
             except TypeError as e:
                     return
-    
     targets = [i for i in targets if i.startswith(directory_url)]
-
+    """
+    
 page = requests.get(directory_url)
 rawhtml = BeautifulSoup(page.text,"lxml")
 
