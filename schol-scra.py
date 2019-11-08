@@ -8,7 +8,7 @@ Description:
 sou.py has been left in a functional state, however, sou.py is a mess of
 spaghetti code so all future efforts will be placed into this script.
 
-To install requirements: pip install requirements.txt
+To install requirements: pip install -r requirements.txt
 """
 """
 Strategy:
@@ -43,26 +43,40 @@ elif len(sys.argv) > 2:
     print("Usage: schol-scra.py [url]")
     exit()
 
-#2. Search link
-target_url = sys.argv[1]
-pullFromSLD(target_url)
-#3. Apply filters and modifiers
+#2 Crawl and Scrape URL's
+urls_to_search = []
+urls_to_search.append(sys.argv[1])
+for url in urls_to_search:
+    #2.1 Search link for scholarships
+    titles = []
+    duedates = []
+    amounts = []
+    links = []
 
-#4. Generate CSV
-
-#################
-### FUNCTIONS ###
-#################
-
-#Called to pull scholarships from scholarshiplistdirectory
-def pullFromSLD(url): 
-    global scholarships
-    schol_count = 0
     page = requests.get(url)
     if page.status_code != 200:
         print("could not reach {}".format(url))
         continue 
     rawhtml = BeautifulSoup(page.text, "lxml")
-    for scholdir in rawhtml.find_all('table', attrs={'class:','scholarshiplistdirectory'}):
-        link = scholdir.find_all("a")
-        scholarships.append(link)
+
+    '''
+    t = rawhtml.select('td.schotitle')
+    d = rawhtml.select('td.scholdd')
+    a = rawhtml.select('td.scholamt')
+    
+    for ele_t, ele_d, ele_a, ele_l in zip(t,d,a,t):
+        titles.append(ele_t.text)
+        duedates.append(ele_d.text)
+        amounts.append(ele_a.text)
+        links.append(ele_l.get('href'))
+    #for ele in rawhtml.select('td.scholtitle'):
+    #    for a in ele.find_all('a'):
+    #       print(a.get('href'))
+    '''
+    #2.2 Search for more links
+    
+    #if new_url not in urls_to_search:
+    #    urls_to_search.append(url) 
+#3. Apply filters and modifiers
+
+#4. Generate CSV
