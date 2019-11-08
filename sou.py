@@ -4,6 +4,10 @@
 #Requires BeautifulSoup and lxml! (python3 -m pip install requirements.txt)
 #Last updated: 04-November-2019
 
+#WARNING!
+#While this file is functional, it is spaghetti code, and is no longer worked on.
+#Please refer to schol-scra.py the main script that *will be* continuously developed.
+
 import requests
 from bs4 import BeautifulSoup
 import csv
