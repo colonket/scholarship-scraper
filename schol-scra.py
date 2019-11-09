@@ -30,6 +30,13 @@ import csv                      #generate csv's of scholarships
 import datetime                 #timestamps for scraping
 import sys                      #getting input from user
 
+#################################
+# Functions #####################
+#################################
+def getDomain(url):
+    return '/'.join(url.split('/', 3)[:3])
+
+
 
 #TEMPORARY - 1. Handle User Input
 #Currently just takes the url and nothing else
@@ -59,8 +66,8 @@ for url in urls_to_search:
         continue 
     rawhtml = BeautifulSoup(page.text, "lxml")
 
-    '''
-    t = rawhtml.select('td.schotitle')
+    
+    t = rawhtml.select('td.scholtitle')
     d = rawhtml.select('td.scholdd')
     a = rawhtml.select('td.scholamt')
     
@@ -68,11 +75,8 @@ for url in urls_to_search:
         titles.append(ele_t.text)
         duedates.append(ele_d.text)
         amounts.append(ele_a.text)
-        links.append(ele_l.get('href'))
-    #for ele in rawhtml.select('td.scholtitle'):
-    #    for a in ele.find_all('a'):
-    #       print(a.get('href'))
-    '''
+        links.append(getDomain(url)+ele_l.find('a').get('href'))
+    
     #2.2 Search for more links
     
     #if new_url not in urls_to_search:
@@ -80,3 +84,15 @@ for url in urls_to_search:
 #3. Apply filters and modifiers
 
 #4. Generate CSV
+consistent = ( len(titles) == len(duedates) == len(amounts) == len(links) )
+if( consistent ):
+    print("schol-scra.py: Generating db.csv ...")
+    fieldnames = ['Title', 'Due Date', 'Amount', 'Link']
+    with open('db.csv', 'w') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        for i in range(len(titles)):
+            #schol = "{} - {} - {} - {}".format(titles[i], duedates[i], amounts[i], links[i])
+            writer.writerow({'Title': titles[i],'Due Date': duedates[i], 'Amount': amounts[i], 'Link': links[i]})
+else:
+    print("schol-scra.py: Error - Table Lengths Inconsistent")        
