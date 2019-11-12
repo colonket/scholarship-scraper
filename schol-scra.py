@@ -50,10 +50,26 @@ elif len(sys.argv) > 2:
     print("Usage: schol-scra.py [url]")
     exit()
 
-#2 Crawl and Scrape URL's
-urls_to_search = []
-urls_to_search.append(sys.argv[1])
+#SPECIAL CASE
+#As this script is currently adapted to scholarships.com, let's target the scholarships
+#directory index page for links to more scholarships.
+#It's a cheap hack of what this script is supposed to achieve,
+#but it'll help build a database for scholarships.com
+directory_url = 'https://www.scholarships.com/financial-aid/college-scholarships/scholarship-directory'
+urls_to_search = [directory_url]
 for url in urls_to_search:
+    page = requests.get(url)
+    if page.status_code != 200:
+        print("could not reach {}".format(url))
+        continue 
+    rawhtml = BeautifulSoup(page.text, "lxml")
+
+    leads = rawhtml.select('ul.ullist')
+
+
+#2 Crawl and Scrape URL's
+urls_to_schol_scrape = [sys.argv[1]]
+for url in urls_to_schol_scrape:
     #2.1 Search link for scholarships
     titles = []
     duedates = []
@@ -78,10 +94,12 @@ for url in urls_to_search:
         links.append(getDomain(url)+ele_l.find('a').get('href'))
     
     #2.2 Search for more links
-    
-    #if new_url not in urls_to_search:
-    #    urls_to_search.append(url) 
-#3. Apply filters and modifiers
+    #for a in rawhtml.select('a')
+    #if new_url not in urls_to_schol_scrape:
+    #    urls_to_schol_scrape.append(url) 
+
+#3. Apply filters and modifiers 
+    #NOTE: On rhe description page for the scholarship, the description is stored in a li with class = "scholdesc"
 
 #4. Generate CSV
 consistent = ( len(titles) == len(duedates) == len(amounts) == len(links) )
