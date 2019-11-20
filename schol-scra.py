@@ -62,9 +62,9 @@ for url in urls_to_search:
     if page.status_code != 200:
         print("could not reach {}".format(url))
         continue 
-    rawhtml = BeautifulSoup(page.text, "lxml")
+    rawhtml2 = BeautifulSoup(page.text, "lxml")
 
-    leads = rawhtml.select('ul.ullist')
+    leads = rawhtml2.select('ul.ullist')
 
 
 #2 Crawl and Scrape URL's
